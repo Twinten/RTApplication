@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MyList;
 using RTApplication;
 
 namespace RadixTreeView
@@ -11,7 +11,7 @@ namespace RadixTreeView
         public MainController(MainWindow mainWindow)
         {            
             model = new RadixTree();          
-            this.mainWindow = mainWindow;
+            this.mainWindow = mainWindow;            
 
         }
          
@@ -50,11 +50,33 @@ namespace RadixTreeView
             mainWindow.ShowMessage(deleted ? $"Слово \"{word}\" успешно удалено." : $"Слово \"{word}\" не найдено или не может быть удалено.");
             mainWindow.ClearInput();
         }
-        public void OnShowAllWordsRequested()
+        public RadixTree GetTree() 
         {
-            var words = model.GetAllWords();
-            mainWindow.DisplayWords(words);
+            return model;
         }
-
+        public RadixTreeNode FindNode(string prefix)
+        {
+           return model.FindNode(prefix);
+        }
+        public MyList<string> GetAllWordsFromNode(RadixTreeNode node, string prefix)
+        {
+            return model.GetAllWordsFromNode(node, prefix);
+        }
+        public MyList<string> AutoComplete(string prefix) 
+        {
+            return model.AutoComplete(prefix);
+        }
+        public void SaveToJson(string filePath)
+        {
+            model.SaveToJson(filePath);
+        }
+        public void LoadFromJson(string filePath)
+        {
+            model.LoadFromJson(filePath);
+        }
+        public void Clear() 
+        {
+           model.Clear(); 
+        }
     }
 }

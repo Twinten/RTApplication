@@ -92,6 +92,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\MyList\MyList.csproj">
+      <Project>{51438145-0D6A-43A2-AC50-0FB92B88BA74}</Project>
+      <Name>MyList</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RTApplication\RadixTreeModel.csproj">
       <Project>{48bfce9a-9246-49b0-941b-984c40a12119}</Project>
       <Name>RadixTreeModel</Name>
