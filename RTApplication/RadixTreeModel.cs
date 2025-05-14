@@ -99,5 +99,26 @@ namespace RTApplication
 
             return false;
         }
+        public List<string> GetAllWords()
+        {
+            var words = new List<string>();
+            GetWords(root, "", words);
+            return words;
+        }
+
+        private void GetWords(RadixTreeNode node, string prefix, List<string> words)
+        {
+            if (node.IsEndOfWord)
+            {
+                words.Add(prefix);
+            }
+
+            foreach (var child in node.Children)
+            {
+                GetWords(child.Value, prefix + child.Key, words);
+            }
+        }
+
+
     }
 }

@@ -50,5 +50,11 @@ namespace RadixTreeView
             mainWindow.ShowMessage(deleted ? $"Слово \"{word}\" успешно удалено." : $"Слово \"{word}\" не найдено или не может быть удалено.");
             mainWindow.ClearInput();
         }
+        public void OnShowAllWordsRequested()
+        {
+            var words = model.GetAllWords();
+            mainWindow.DisplayWords(words);
+        }
+
     }
 }

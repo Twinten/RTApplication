@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 
 
@@ -38,5 +39,18 @@ namespace RadixTreeView
         {
             InputTextBox.Clear();
         }
+        public void DisplayWords(List<string> words)
+        {
+            WordsListBox.Items.Clear();
+            foreach (var word in words)
+            {
+                WordsListBox.Items.Add(word);
+            }
+        }
+        private void ShowAllWordsButton_Click(object sender, RoutedEventArgs e)
+        {
+            controller.OnShowAllWordsRequested();
+        }
+
     }
 }
