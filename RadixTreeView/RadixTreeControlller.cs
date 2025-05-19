@@ -1,5 +1,8 @@
 ﻿using MyList;
 using RTApplication;
+using System.IO;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 
 namespace RadixTreeView
 {
@@ -50,30 +53,71 @@ namespace RadixTreeView
             mainWindow.ShowMessage(deleted ? $"Слово \"{word}\" успешно удалено." : $"Слово \"{word}\" не найдено или не может быть удалено.");
             mainWindow.ClearInput();
         }
-        public RadixTree GetTree() 
+
+        private static JsonSerializerOptions opt = new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
+        public void SaveToJson(string filePath)
         {
-            return model;
+            var words = GetAllWords();
+
+            string json = JsonSerializer.Serialize(words, opt);
+            File.WriteAllText(filePath, json);
+        }
+
+        public void LoadFromJson(string filePath)
+        {
+            string json = File.ReadAllText(filePath);
+            var words = JsonSerializer.Deserialize<MyList<string>>(json, opt);
+            Clear();
+            foreach (var word in words)
+                model.Insert(word);
+        }
+
+        public MyList<string> GetAllWords()
+        {
+            var words = GetAllWordsFromNode(model.Root, "");
+            return words;
+        }
+        public MyList<string> AutoComplete(string prefix)
+        {
+            var words = GetAllWordsFromNode(model.Root, "");
+            var searchWords = new MyList<string>();
+            foreach (var word in words)
+                if (word.StartsWith(prefix))
+                    searchWords.Add(word);
+            return searchWords;
         }
         public RadixTreeNode FindNode(string prefix)
         {
-           return model.FindNode(prefix);
+            var currentNode = model.Root;
+            foreach (char c in prefix)
+            {
+                if (!currentNode.Children.TryGetValue(c.ToString(), out var nextNode))
+                    return null;
+                currentNode = nextNode;
+            }
+            return currentNode;
         }
+
         public MyList<string> GetAllWordsFromNode(RadixTreeNode node, string prefix)
         {
-            return model.GetAllWordsFromNode(node, prefix);
+            var words = new MyList<string>();
+            if (node == null) return words;
+
+            // Если текущий узел - конец слова, добавляем полный префикс
+            if (node.IsEndOfWord)
+                words.Add(prefix + node.Prefix);
+
+            // Рекурсивно собираем слова из дочерних узлов
+            foreach (var child in node.Children)
+                words.AddRange(GetAllWordsFromNode(child.Value, prefix + node.Prefix));
+
+            return words;
         }
-        public MyList<string> AutoComplete(string prefix) 
+        public RadixTree GetTree() 
         {
-            return model.AutoComplete(prefix);
-        }
-        public void SaveToJson(string filePath)
-        {
-            model.SaveToJson(filePath);
-        }
-        public void LoadFromJson(string filePath)
-        {
-            model.LoadFromJson(filePath);
-        }
+            return model;
+        }    
+        
         public void Clear() 
         {
            model.Clear(); 

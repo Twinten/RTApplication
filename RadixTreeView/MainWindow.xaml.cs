@@ -103,7 +103,7 @@ namespace RadixTreeView
 
             return panel;
         }
-        private async void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (isSuggestionSelected) // Игнорируем изменение текста при выборе подсказки
             {
@@ -144,16 +144,7 @@ namespace RadixTreeView
                     ? Visibility.Visible
                     : Visibility.Collapsed;
             }
-        }
-        private void SearchBox_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Down && SuggestionsList.Visibility == Visibility.Visible)
-            {
-                SuggestionsList.Focus();
-                SuggestionsList.SelectedIndex = 0;
-                e.Handled = true;
-            }
-        }
+        }        
         private void SuggestionsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SuggestionsList.SelectedItem == null) return;
@@ -175,26 +166,10 @@ namespace RadixTreeView
             SearchBox.Focus();
 
             SuggestionsList.Visibility = Visibility.Collapsed;
-        }
+        }    
 
-        private void SuggestionsList_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter && SuggestionsList.SelectedItem != null)
-            {
-                SearchBox.Text = SuggestionsList.SelectedItem.ToString();
-                SuggestionsList.Visibility = Visibility.Collapsed;
-                e.Handled = true;
-            }
-        }
-
-        private void SetExpandedState(ItemCollection items, bool expanded)
-        {
-            foreach (TreeViewItem item in items)
-            {
-                item.IsExpanded = expanded;
-                SetExpandedState(item.Items, expanded);
-            }
-        }  
+        
+          
         
         private void SaveDictionary_Click(object sender, RoutedEventArgs e)
         {

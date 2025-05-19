@@ -33,9 +33,9 @@
         <Button Content="Вставить" Margin="0,155,1043,745" Click="InsertButton_Click" Grid.Column="1" FontSize="24"/>
         <Button Content="Поиск" Margin="430,155,613,745" Click="SearchButton_Click" Grid.Column="1" FontSize="24"/>
         <Button Content="Удалить" Margin="846,155,197,745" Click="DeleteButton_Click" Grid.Column="1" Grid.IsSharedSizeScope="True" FontSize="24"/>
-        <Button Content="Сохранить словарь" Click="SaveDictionary_Click" Margin="0,494,1026,370" Padding="10,2" Grid.Column="1" FontSize="24"/>
-        <Button Content="Загрузить словарь" Click="LoadDictionary_Click" Margin="430,494,595,370" Padding="10,2" Grid.Column="1" RenderTransformOrigin="0.5,0.5" FontSize="24"/>
-        <Button Content="Очистить словарь" Click="ClearAll_Click" Margin="837,494,188,370" Padding="10,2" Grid.Column="1" FontSize="24"/>
+        <Button Content="Сохранить словарь" Click="SaveDictionary_Click" Margin="14,378,916,485" Padding="10,2" FontSize="24" Grid.ColumnSpan="2"/>
+        <Button Content="Загрузить словарь" Click="LoadDictionary_Click" Margin="404,378,499,485" Padding="10,2" Grid.Column="1" RenderTransformOrigin="0.5,0.5" FontSize="24"/>
+        <Button Content="Очистить словарь" Click="ClearAll_Click" Margin="811,378,133,485" Padding="10,2" Grid.Column="1" FontSize="24"/>
 
         <TreeView x:Name="TreeView" Margin="26,37,0,0" Grid.Column="2" Grid.ColumnSpan="2">
             <TreeView.Resources>
@@ -54,8 +54,8 @@
         </TreeView>
 
         <ListBox x:Name="SuggestionsList"
-             MaxHeight="150" Background="White" BorderBrush="Gray"
-             ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Column="1" Margin="0,719,679,176" SelectionChanged="SuggestionsList_SelectionChanged" FontSize="24">
+              Background="White" BorderBrush="Gray"
+             ScrollViewer.VerticalScrollBarVisibility="Auto" Grid.Column="1" Margin="0,484,600,176" SelectionChanged="SuggestionsList_SelectionChanged" FontSize="24">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding}" Padding="2"/>

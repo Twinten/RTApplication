@@ -4,7 +4,9 @@ using System.IO;
 using System.Text.Json;
 using System.Collections.Generic;
 using System;
-using System.Text.Encodings.Web;
+using System.Linq;
+using System.CodeDom.Compiler;
+
 
 
 namespace RTApplication
@@ -116,8 +118,6 @@ namespace RTApplication
                 return Search(currentNode, word);
             }
 
-
-
             private bool Search(RadixTreeNode node, string word)
             {
                 if (string.IsNullOrEmpty(word))
@@ -127,144 +127,80 @@ namespace RTApplication
 
                 foreach (var child in node.Children)
                 {
-                    if (word.StartsWith(child.Key.ToString()))
+                    if (word.StartsWith(child.Value.Prefix))
                     {
-                        return Search(child.Value, word.Substring(child.Key.ToString().Length));
+                        return Search(child.Value, word.Substring(child.Value.Prefix.Length));
                     }
                 }
 
                 return false;
             }
+        public MyList<string> MSearch(string word)
+        {
+            var currentNode = Root;
+            var result = new MyList<string>();
+            return MSearch(currentNode, word, result);
+        }
 
-            public bool Delete(string word)
+        private MyList<string> MSearch(RadixTreeNode node, string word, MyList<string> result)
+        {
+            if (string.IsNullOrEmpty(word) && node.IsEndOfWord)
             {
-                return Delete(Root, word);
+                result.Add(node.Prefix);
             }
 
-            private bool Delete(RadixTreeNode node, string word)
+            foreach (var child in node.Children)
             {
-                if (string.IsNullOrEmpty(word))
+                if (word.StartsWith(child.Value.Prefix))
                 {
-                    if (!node.IsEndOfWord)
+                result.Add(child.Value.Prefix);
+                    result.AddRange(MSearch(child.Value, word.Substring(child.Value.Prefix.Length), result));
+                }
+            }
+            return result;
+        }
+
+        public bool Delete(string word)
+        {
+            if (!Search(word))
+                return false;
+            Delete(Root, word);
+            return true;
+        }
+
+        private bool Delete(RadixTreeNode node, string word)
+        {
+            if (string.IsNullOrEmpty(word))
+            {
+                if (!node.IsEndOfWord)
+                {
+                    return false; // Слово не найдено
+                }
+
+                node.IsEndOfWord = false; // Удаляем слово
+                return node.Children.Count == 0; // Если нет потомков, удаляем узел
+            }
+                            
+            foreach (var child in node.Children)
+            {
+                if (word.StartsWith(child.Value.Prefix))
+                {
+                    bool shouldDeleteChild = Delete(child.Value, word.Substring(child.Value.Prefix.Length));
+
+                    if (shouldDeleteChild)
                     {
-                        return false; // Слово не найдено
+                        node.Children.Remove(child.Key);
+                        return node.Children.Count == 0 && !node.IsEndOfWord; // Удаляем узел, если он пуст
                     }
-
-                    node.IsEndOfWord = false; // Удаляем слово
-                    return node.Children.Count == 0; // Если нет потомков, удаляем узел
                 }
-
-                foreach (var child in node.Children)
-                {
-                    if (word.StartsWith(child.Key.ToString()))
-                    {
-                        bool shouldDeleteChild = Delete(child.Value, word.Substring(child.Key.ToString().Length));
-
-                        if (shouldDeleteChild)
-                        {
-                            node.Children.Remove(child.Key);
-                            return node.Children.Count == 0 && !node.IsEndOfWord; // Удаляем узел, если он пуст
-                        }
-                    }
-
-                }
-                return false; // Слово не найдено
             }
-
-
-
-            public MyList<string> AutoComplete(string prefix)
-            {
-                var node = FindNode(prefix);
-                return node != null ? GetAllWordsFromNode(node, prefix) : new MyList<string>();
-            }
-            public RadixTreeNode FindNode(string prefix)
-            {
-                var currentNode = Root;
-                foreach (char c in prefix)
-                {
-                    if (!currentNode.Children.TryGetValue(prefix, out var nextNode))
-                        return null;
-                    currentNode = nextNode;
-                }
-                return currentNode;
-            }
-
-            public MyList<string> GetAllWordsFromNode(RadixTreeNode node, string prefix)
-            {
-                var words = new MyList<string>();
-                if (node == null) return words;
-
-                // Если текущий узел - конец слова, добавляем полный префикс
-                if (node.IsEndOfWord)
-                    words.Add(prefix + node.Prefix);
-                
-
-                // Рекурсивно собираем слова из дочерних узлов
-                foreach (var child in node.Children)
-                    words.AddRange(GetAllWordsFromNode(child.Value, prefix + node.Prefix));
-
-                return words;
-            }
-
-            //private void GetWords(RadixTreeNode node, string currentPrefix, MyList<string> words)
-            //{
-            //    if (node.IsEndOfWord)
-            //        words.Add(currentPrefix);
-
-            //    foreach (var child in node.Children)
-            //        GetWords(child.Value, currentPrefix, words);
-            //}
-
-
-            public MyList<string> GetAllWords()
-            {
-                var words = GetAllWordsFromNode(Root, "");
-                return words;
-            }
-
-        //private void CollectWords(RadixTreeNode node, string currentPrefix, MyList<string> words)
-        //{
-        //    //// Если текущий узел является концом слова, добавляем в результат
-        //    //if (node.IsEndOfWord)
-        //    //{
-        //    //    words.Add(currentPrefix);
-        //    //}
-
-        //    //// Рекурсивно обходим все дочерние узлы
-        //    //foreach (var child in node.Children)
-        //    //{
-        //    //    CollectWords(child.Value, currentPrefix + child.Key, words);
-        //    //}
-
-        //}
-
-
-        private static JsonSerializerOptions opt = new JsonSerializerOptions { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
-            public void SaveToJson(string filePath)
-            {
-                var words = GetAllWords();
-                
-                string json = JsonSerializer.Serialize(words, opt);
-                File.WriteAllText(filePath, json);
-            }
-
-            public void LoadFromJson(string filePath)
-            {
-                string json = File.ReadAllText(filePath);
-                var words = JsonSerializer.Deserialize<MyList<string>>(json, opt);
-                Clear();
-                foreach (var word in words)
-                    Insert(word);
-            }
-
-            // Очистка дерева
-            public void Clear()
+            return false; // Слово не найдено
+        }
+        // Очистка дерева
+        public void Clear()
             {
                 Root.Children.Clear();
             }
-
-
         }
     }
 
